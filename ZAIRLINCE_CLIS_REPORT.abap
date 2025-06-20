@@ -1,0 +1,22 @@
+*&---------------------------------------------------------------------*
+*& Report ZAIRLINCE_CLIS_REPORT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT zairlince_clis_report.
+
+TABLES : scarr,spfli,sflight,sbook.
+
+
+INCLUDE ZAIRLINCE_CLIS_REPORT_TOP.
+INCLUDE ZAIRLINCE_CLIS_REPORT_SCR.
+INCLUDE ZAIRLINCE_CLIS_REPORT_F01.
+
+
+START-OF-SELECTION.
+PERFORM GET_scarr.
+END-OF-SELECTION.
+
+PERFORM build_field_cat.
+
+PERFORM display_alv.

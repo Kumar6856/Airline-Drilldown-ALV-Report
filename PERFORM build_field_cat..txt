@@ -1,0 +1,36 @@
+FORM build_field_cat .
+
+  DATA lv_col TYPE i.
+  lv_col = 0.
+
+
+  lv_col = lv_col + 1.
+*wa_fcat-col_pos = 1.
+  wa_fcat-col_pos = lv_col.
+  wa_fcat-tabname = 'it_scarr'.
+  wa_fcat-fieldname = 'carrid'.
+  wa_fcat-seltext_M = 'Airline Code'.
+  APPEND wa_fcat TO it_fcat.
+  CLEAR : wa_fcat.
+
+
+  lv_col = lv_col + 1.
+*wa_fcat-col_pos = 1.
+  wa_fcat-col_pos = lv_col.
+  wa_fcat-tabname = 'it_scarr'.
+  wa_fcat-fieldname = 'carrname'.
+  wa_fcat-seltext_M = 'Airline Name'.
+  APPEND wa_fcat TO it_fcat.
+  CLEAR : wa_fcat.
+
+  lv_col = lv_col + 1.
+*wa_fcat-col_pos = 1.
+  wa_fcat-col_pos = lv_col.
+  wa_fcat-tabname = 'it_scarr'.
+  wa_fcat-fieldname = 'currcode'.
+  wa_fcat-seltext_M = 'Currency'.
+  APPEND wa_fcat TO it_fcat.
+  CLEAR : wa_fcat.
+
+
+ENDFORM.

@@ -1,0 +1,589 @@
+
+*&---------------------------------------------------------------------*
+*& Include          ZAIRLINCE_CLIS_REPORT_F01
+*&---------------------------------------------------------------------*
+*&---------------------------------------------------------------------*
+*& Form GET_scarr
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM GET_scarr .
+
+    SELECT carrid
+           carrname
+           currcode
+      FROM scarr
+      INTO TABLE it_scarr
+      WHERE carrid IN s_carrid.
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form build_field_cat
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM build_field_cat .
+
+  DATA lv_col TYPE i.
+  lv_col = 0.
+
+
+  lv_col = lv_col + 1.
+*wa_fcat-col_pos = 1.
+  wa_fcat-col_pos = lv_col.
+  wa_fcat-tabname = 'it_scarr'.
+  wa_fcat-fieldname = 'carrid'.
+  wa_fcat-seltext_M = 'Airline Code'.
+  APPEND wa_fcat TO it_fcat.
+  CLEAR : wa_fcat.
+
+
+  lv_col = lv_col + 1.
+*wa_fcat-col_pos = 1.
+  wa_fcat-col_pos = lv_col.
+  wa_fcat-tabname = 'it_scarr'.
+  wa_fcat-fieldname = 'carrname'.
+  wa_fcat-seltext_M = 'Airline Name'.
+  APPEND wa_fcat TO it_fcat.
+  CLEAR : wa_fcat.
+
+  lv_col = lv_col + 1.
+*wa_fcat-col_pos = 1.
+  wa_fcat-col_pos = lv_col.
+  wa_fcat-tabname = 'it_scarr'.
+  wa_fcat-fieldname = 'currcode'.
+  wa_fcat-seltext_M = 'Currency'.
+  APPEND wa_fcat TO it_fcat.
+  CLEAR : wa_fcat.
+
+
+ENDFORM.
+*&---------------------------------------------------------------------*
+*& Form display_alv
+*&---------------------------------------------------------------------*
+*& text
+*&---------------------------------------------------------------------*
+*& -->  p1        text
+*& <--  p2        text
+*&---------------------------------------------------------------------*
+FORM display_alv .
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+   EXPORTING
+*     I_INTERFACE_CHECK                 = ' '
+*     I_BYPASSING_BUFFER                = ' '
+*     I_BUFFER_ACTIVE                   = ' '
+     I_CALLBACK_PROGRAM                 = syst-repid
+*     I_CALLBACK_PF_STATUS_SET          = ' '
+     I_CALLBACK_USER_COMMAND            = 'USER_CMD'
+     I_CALLBACK_TOP_OF_PAGE             = 'TOP_OF_PAGE'
+*     I_CALLBACK_HTML_TOP_OF_PAGE       = ' '
+*     I_CALLBACK_HTML_END_OF_LIST       = ' '
+*     I_STRUCTURE_NAME                  =
+*     I_BACKGROUND_ID                   = ' '
+*     I_GRID_TITLE                      =
+*     I_GRID_SETTINGS                   =
+*     IS_LAYOUT                         =
+     IT_FIELDCAT                        = it_fcat
+*     IT_EXCLUDING                      =
+*     IT_SPECIAL_GROUPS                 =
+*     IT_SORT                           =
+*     IT_FILTER                         =
+*     IS_SEL_HIDE                       =
+*     I_DEFAULT                         = 'X'
+*     I_SAVE                            = ' '
+*     IS_VARIANT                        =
+*     IT_EVENTS                         =
+*     IT_EVENT_EXIT                     =
+*     IS_PRINT                          =
+*     IS_REPREP_ID                      =
+*     I_SCREEN_START_COLUMN             = 0
+*     I_SCREEN_START_LINE               = 0
+*     I_SCREEN_END_COLUMN               = 0
+*     I_SCREEN_END_LINE                 = 0
+*     I_HTML_HEIGHT_TOP                 = 0
+*     I_HTML_HEIGHT_END                 = 0
+*     IT_ALV_GRAPHICS                   =
+*     IT_HYPERLINK                      =
+*     IT_ADD_FIELDCAT                   =
+*     IT_EXCEPT_QINFO                   =
+*     IR_SALV_FULLSCREEN_ADAPTER        =
+*     O_PREVIOUS_SRAL_HANDLER           =
+*   IMPORTING
+*     E_EXIT_CAUSED_BY_CALLER           =
+*     ES_EXIT_CAUSED_BY_USER            =
+    TABLES
+      t_outtab                          = it_scarr
+*   EXCEPTIONS
+*     PROGRAM_ERROR                     = 1
+*     OTHERS                            = 2
+            .
+  IF sy-subrc <> 0.
+* Implement suitable error handling here
+  ENDIF.
+   CLEAR : wa_listheader.
+   REFRESH : it_listheader,
+             it_fcat.
+
+
+
+
+
+ENDFORM.
+
+*------------------------------------------TABLE_NAME_scarr------Airline Details List TOP_OF_PAGE-----------------------
+
+FORM TOP_OF_PAGE.
+
+  DATA: lv_str TYPE string,
+        lv_count TYPE i,
+        lv_count_text TYPE char10.
+
+  " Report Name
+  wa_listheader-info = 'Airline Details List'.
+  wa_listheader-typ  = 'H'.
+  APPEND wa_listheader TO it_listheader.
+  CLEAR wa_listheader.
+
+  " User Name
+  wa_listheader-info = |User Name: { sy-uname }|.
+  wa_listheader-typ  = 'S'.
+  APPEND wa_listheader TO it_listheader.
+  CLEAR wa_listheader.
+
+  " Date in DD.MM.YYYY format
+  CONCATENATE 'Date:' sy-datum+6(2) '.' sy-datum+4(2) '.' sy-datum+0(4) INTO lv_str.
+  wa_listheader-info = lv_str.
+  wa_listheader-typ  = 'S'.
+  APPEND wa_listheader TO it_listheader.
+  CLEAR wa_listheader.
+
+  " Total number of records
+  DESCRIBE TABLE it_scarr LINES lv_count.
+  lv_count_text = lv_count.
+  CONCATENATE 'Total Records:' lv_count_text INTO lv_str SEPARATED BY space.
+  wa_listheader-info = lv_str.
+  wa_listheader-typ  = 'S'.
+  APPEND wa_listheader TO it_listheader.
+  CLEAR wa_listheader.
+
+  " Display Header in ALV
+  CALL FUNCTION 'REUSE_ALV_COMMENTARY_WRITE'
+    EXPORTING
+      it_list_commentary = it_listheader.
+
+
+  CLEAR: wa_listheader.
+  REFRESH: it_listheader.
+
+
+ENDFORM.
+
+*---------------------------------------------------USER_COMMAND_CLICK-------------------------------------
+
+FORM USER_CMD USING UCOMM LIKE SY-UCOMM
+                    SELFIELD TYPE SLIS_SELFIELD.
+
+  DATA: lv_carrid TYPE SPFLI-carrid.
+
+  CASE UCOMM.
+    WHEN '&IC1'.
+
+      READ TABLE it_scarr INTO wa_scarr INDEX selfield-tabindex.
+      IF sy-subrc = 0.
+        lv_carrid = wa_scarr-carrid.
+        PERFORM get_spfli_data USING lv_carrid.
+        PERFORM display_spfli_alv.
+      ENDIF.
+
+  ENDCASE.
+
+ENDFORM.
+
+
+*--------------------------------------------------GET_DATA_FROM_SPFLI------------------------------------------------------
+
+ FORM get_spfli_data USING p_carrid TYPE spfli-carrid.
+  CLEAR it_spfli.
+  SELECT
+            carrid
+            connid
+            airpfrom
+            airpto
+            cityfrom
+            countryto
+            cityto
+            fltime
+
+    INTO TABLE it_spfli
+    FROM spfli
+    WHERE carrid = p_carrid.
+ENDFORM.
+
+
+*------------------------------------------TABLE_NAME_spfli------Flight Schedule List TOP_OF_PAGE-----------------------
+
+FORM Top_of_page_spfli.
+
+  CLEAR : wa_listheader.
+  REFRESH : it_listheader.
+
+  DATA: lv_str TYPE string.
+
+  " Report Name
+  wa_listheader-info = 'Flight Schedule List'.
+  wa_listheader-typ  = 'H'.
+  APPEND wa_listheader TO it_listheader.
+  CLEAR wa_listheader.
+
+  " User Name
+  wa_listheader-info = |User Name: { sy-uname }|.
+  wa_listheader-typ  = 'S'.
+  APPEND wa_listheader TO it_listheader.
+  CLEAR wa_listheader.
+
+  " Date
+  CONCATENATE 'Date:' sy-datum+6(2) '.' sy-datum+4(2) '.' sy-datum+0(4) INTO lv_str.
+  wa_listheader-info = lv_str.
+  wa_listheader-typ  = 'S'.
+  APPEND wa_listheader TO it_listheader.
+  CLEAR wa_listheader.
+
+  " Airline Code
+  IF it_spfli[] IS NOT INITIAL.
+    READ TABLE it_spfli INTO DATA(wa_spfli) INDEX 1.
+    IF sy-subrc = 0.
+      CONCATENATE 'Airline Code:' wa_spfli-carrid INTO lv_str SEPARATED BY space.
+      wa_listheader-info = lv_str.
+      wa_listheader-typ  = 'S'.
+      APPEND wa_listheader TO it_listheader.
+      CLEAR wa_listheader.
+    ENDIF.
+  ENDIF.
+
+  " Show header in ALV
+  CALL FUNCTION 'REUSE_ALV_COMMENTARY_WRITE'
+    EXPORTING
+      it_list_commentary = it_listheader.
+
+  CLEAR : wa_listheader.
+  REFRESH : it_listheader.
+
+ENDFORM.
+
+
+*-----------------------------------------------------DISPLAY_OUT_PUT_DATA----------------------------------
+
+FORM display_SPFLI_alv.
+
+  DATA: lt_fcat TYPE slis_t_fieldcat_alv,
+        ls_fcat TYPE slis_fieldcat_alv,
+        lv_pos  TYPE i.
+
+  CLEAR: lt_fcat.
+  lv_pos = 1.
+
+  DEFINE add_field.
+    ls_fcat-col_pos = lv_pos.
+    ls_fcat-fieldname = &1.
+    ls_fcat-tabname = 'IT_SPFLI'.
+    ls_fcat-seltext_m = &2.
+    APPEND ls_fcat TO lt_fcat.
+    CLEAR ls_fcat.
+    ADD 1 TO lv_pos.
+  END-OF-DEFINITION.
+
+  add_field 'carrid' 'Airline Code'.
+  add_field 'connid' 'Connection ID'.
+  add_field 'airpfrom' 'From'.
+  add_field 'airpto'    'To'.
+  add_field 'cityfrom'  'Depart.city'.
+  add_field 'countryto'  'Country'.
+  add_field 'cityto'    'Arrival city'.
+  add_field 'fltime'    'Flight time'.
+
+
+      CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+      i_callback_program = sy-repid
+      it_fieldcat        = lt_fcat
+      i_callback_user_command  = 'USER_CMD_SPFLI'
+      I_CALLBACK_TOP_OF_PAGE             = 'TOP_OF_PAGE_SPFLI'
+    TABLES
+     t_outtab           = it_spfli.
+
+ENDFORM.
+
+*---------------------------------------------------USER_COMMAND_CLICK_TABLE_SPFLI_SHOW_DATA_sflight-------------------------------------
+
+FORM USER_CMD_SPFLI USING ucomm LIKE sy-ucomm
+                          selfield TYPE slis_selfield.
+
+  DATA: lv_carrid TYPE sflight-carrid,
+        lv_connid TYPE sflight-connid.
+
+  CASE ucomm.
+    WHEN '&IC1'.  " Double-click
+      READ TABLE it_spfli INTO DATA(wa_spfli) INDEX selfield-tabindex.
+      IF sy-subrc = 0.
+        lv_carrid = wa_spfli-carrid.
+        lv_connid = wa_spfli-connid.
+        PERFORM get_sflight_data USING lv_carrid lv_connid.
+        PERFORM display_sflight_alv.
+      ENDIF.
+  ENDCASE.
+
+ENDFORM.
+
+*------------------------------------------TABLE_NAME_sflight------Flight Details List TOP_OF_PAGE-----------------------
+
+FORM TOP_OF_PAGE_SFLIGHT.
+
+  CLEAR : wa_listheader.
+  REFRESH : it_listheader.
+
+  DATA: lv_str TYPE string.
+
+  " Report Name
+  wa_listheader-info = 'Flight Details List'.
+  wa_listheader-typ  = 'H'.
+  APPEND wa_listheader TO it_listheader.
+  CLEAR wa_listheader.
+
+  " User Name
+  wa_listheader-info = |User Name: { sy-uname }|.
+  wa_listheader-typ  = 'S'.
+  APPEND wa_listheader TO it_listheader.
+  CLEAR wa_listheader.
+
+  " Date
+  CONCATENATE 'Date:' sy-datum+6(2) '.' sy-datum+4(2) '.' sy-datum+0(4) INTO lv_str.
+  wa_listheader-info = lv_str.
+  wa_listheader-typ  = 'S'.
+  APPEND wa_listheader TO it_listheader.
+  CLEAR wa_listheader.
+
+  " Airline and Connection Info
+  IF it_sflight[] IS NOT INITIAL.
+    READ TABLE it_sflight INTO DATA(wa_sflight) INDEX 1.
+    IF sy-subrc = 0.
+      CONCATENATE 'Airline:' wa_sflight-carrid 'Conn ID:' wa_sflight-connid INTO lv_str SEPARATED BY space.
+      wa_listheader-info = lv_str.
+      wa_listheader-typ  = 'S'.
+      APPEND wa_listheader TO it_listheader.
+      CLEAR wa_listheader.
+    ENDIF.
+  ENDIF.
+
+  CALL FUNCTION 'REUSE_ALV_COMMENTARY_WRITE'
+    EXPORTING
+      it_list_commentary = it_listheader.
+
+  CLEAR: wa_listheader.
+  REFRESH: it_listheader.
+
+ENDFORM.
+
+*--------------------------------------------------GET_DATA_FROM_sflight------------------------------------------------------
+
+FORM get_sflight_data USING p_carrid TYPE sflight-carrid
+                            p_connid TYPE sflight-connid.
+
+  CLEAR: it_sflight.
+
+  SELECT carrid
+         connid
+         fldate
+         seatsmax
+         seatsocc
+         paymentsum
+         price
+         planetype
+    FROM sflight
+    INTO TABLE it_sflight
+    WHERE carrid = p_carrid
+      AND connid = p_connid.
+
+ENDFORM.
+
+*-----------------------------------------------------DISPLAY_OUT_PUT_DATA_sflight----------------------------------
+
+FORM display_sflight_alv.
+
+  DATA: lt_fcat TYPE slis_t_fieldcat_alv,
+        ls_fcat TYPE slis_fieldcat_alv,
+        lv_pos  TYPE i.
+
+  CLEAR: lt_fcat.
+  lv_pos = 1.
+
+  DEFINE add_field.
+    ls_fcat-col_pos = lv_pos.
+    ls_fcat-fieldname = &1.
+    ls_fcat-tabname = 'IT_sflight'.
+    ls_fcat-seltext_m = &2.
+    APPEND ls_fcat TO lt_fcat.
+    CLEAR ls_fcat.
+    ADD 1 TO lv_pos.
+  END-OF-DEFINITION.
+
+  add_field 'carrid' 'Airline Code'.
+  add_field 'connid' 'Connection ID'.
+  add_field 'fldate' 'Flight Date'.
+  add_field 'seatsmax' 'Available'.
+  add_field 'seatsocc' 'Occupied'.
+  add_field 'paymentsum' 'Total  Bookings'.
+  add_field 'price' 'Air Price'.
+  add_field 'planetype' 'Plane Type'.
+
+      CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+      i_callback_program = sy-repid
+      it_fieldcat        = lt_fcat
+      i_callback_user_command  = 'USER_CMD_SFLIGHT'
+      I_CALLBACK_TOP_OF_PAGE             = 'TOP_OF_PAGE_SFLIGHT'
+    TABLES
+     t_outtab           = it_sflight.
+
+ENDFORM.
+
+*-----------------------------------------USER_COMMAND_CLICK_TABLE_sflight_SHOW_DATA_sbook-------------------------------------
+
+FORM USER_CMD_SFLIGHT USING ucomm LIKE sy-ucomm
+                             selfield TYPE slis_selfield.
+
+  DATA: lv_carrid TYPE sbook-carrid,
+        lv_connid TYPE sbook-connid,
+        lv_fldate TYPE sbook-fldate.
+
+  CASE ucomm.
+    WHEN '&IC1'.  " Double-click
+      READ TABLE it_sflight INTO DATA(wa_sflight) INDEX selfield-tabindex.
+      IF sy-subrc = 0.
+
+        LV_CARRID = WA_SFLIGHT-CARRID.
+        LV_CONNID = WA_SFLIGHT-CONNID.
+        LV_FLDATE = WA_SFLIGHT-FLDATE.
+
+        PERFORM get_sbook_data USING lv_carrid lv_connid lv_fldate.
+        PERFORM display_sbook_alv.
+      ENDIF.
+  ENDCASE.
+
+ENDFORM.
+
+*------------------------------------------TABLE_NAME_sbook------Customer Booking List for Selected Flight TOP_OF_PAGE-----------------------
+
+
+FORM TOP_OF_PAGE_SBOOK.
+
+  DATA: wa_header TYPE slis_listheader,
+        it_header TYPE slis_t_listheader.
+
+  CLEAR: wa_header.
+  REFRESH: it_header.
+
+  " Main heading
+  wa_header-typ  = 'H'.
+  wa_header-info = 'Customer Booking List for Selected Flight'.
+  APPEND wa_header TO it_header.
+
+  " Airline Code
+  wa_header-typ  = 'S'.
+  wa_header-key  = 'Airline:'.
+  wa_header-info = wa_selected_sflight-carrid.
+  APPEND wa_header TO it_header.
+
+  " Flight Number
+  wa_header-typ  = 'S'.
+  wa_header-key  = 'Flight No:'.
+  wa_header-info = wa_selected_sflight-connid.
+  APPEND wa_header TO it_header.
+
+  " Flight Date
+  wa_header-typ  = 'S'.
+  wa_header-key  = 'Flight Date:'.
+  wa_header-info = wa_selected_sflight-fldate.
+  APPEND wa_header TO it_header.
+
+  CALL FUNCTION 'REUSE_ALV_COMMENTARY_WRITE'
+    EXPORTING
+      it_list_commentary = it_header.
+
+ENDFORM.
+
+*--------------------------------------------------GET_DATA_FROM_sbook------------------------------------------------------
+
+FORM get_sbook_data USING p_carrid TYPE sbook-carrid
+                          p_connid TYPE sbook-connid
+                          p_fldate TYPE sbook-fldate.
+
+  CLEAR it_sbook.
+  SELECT
+          carrid
+          connid
+          fldate
+          bookid
+          customid
+          wunit
+          PASSNAME
+          PASSBIRTH
+          PASSFORM
+          CANCELLED
+          AGENCYNUM
+    INTO TABLE it_sbook
+    FROM sbook
+    WHERE carrid = p_carrid
+      AND connid = p_connid
+      AND fldate = p_fldate.
+
+ENDFORM.
+
+*-----------------------------------------------------DISPLAY_OUT_PUT_DATA_sbook----------------------------------
+
+FORM display_sbook_alv.
+
+  DATA: lt_fcat TYPE slis_t_fieldcat_alv,
+        ls_fcat TYPE slis_fieldcat_alv,
+        lv_pos  TYPE i.
+
+  CLEAR: lt_fcat.
+  lv_pos = 1.
+
+  DEFINE add_field.
+    ls_fcat-col_pos = lv_pos.
+    ls_fcat-fieldname = &1.
+    ls_fcat-tabname = 'IT_SBOOK'.
+    ls_fcat-seltext_m = &2.
+    APPEND ls_fcat TO lt_fcat.
+    CLEAR ls_fcat.
+    ADD 1 TO lv_pos.
+  END-OF-DEFINITION.
+
+  add_field 'CARRID'    'Airline'.
+  add_field 'CONNID'    'Connection'.
+  add_field 'FLDATE'    'Flight Date'.
+  add_field 'BOOKID'    'Booking ID'.
+  add_field 'CUSTOMID'  'Customer ID'.
+  add_field 'wunit'     'Unit of measure'.
+  add_field 'PASSNAME'  'Customer Name'.
+  add_field 'PASSBIRTH' 'Customer DOB'.
+  add_field 'PASSFORM'  'Customer Address'.
+  add_field 'CANCELLED' 'Cancelation flight'.
+  add_field 'AGENCYNUM' 'Travel Agency Number'.
+
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+      i_callback_program      = sy-repid
+      i_callback_top_of_page  = 'TOP_OF_PAGE_SBOOK'  " Optional
+      it_fieldcat             = lt_fcat
+    TABLES
+      t_outtab                = it_sbook.
+
+ENDFORM.

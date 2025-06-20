@@ -1,0 +1,10 @@
+FORM GET_scarr .
+
+    SELECT carrid
+           carrname
+           currcode
+      FROM scarr
+      INTO TABLE it_scarr
+      WHERE carrid IN s_carrid.
+
+ENDFORM.

@@ -1,0 +1,79 @@
+*&---------------------------------------------------------------------*
+*& Include          ZAIRLINCE_CLIS_REPORT_TOP
+*&---------------------------------------------------------------------*
+TYPE-POOLS : slis.
+*---------------------------Airline----------------------------
+TYPES : BEGIN OF ty_SCARR,
+          carrid   TYPE scarr-carrid,    "Demo sflight text enhancement
+          carrname TYPE scarr-carrname,  "Airline name
+          currcode TYPE scarr-currcode,  "Local currency of airline
+        END OF ty_scarr.
+*---------------------------Airline_Flight_schedule----------------------------
+
+TYPES : BEGIN OF ty_SPFLI,
+          carrid    TYPE spfli-carrid,    "Demo sflight text enhancement
+          connid    TYPE spfli-connid,    "Flight Connection Number
+          airpfrom  TYPE spfli-airpfrom,  "Departure airport
+          airpto    TYPE spfli-airpto,    "Destination airport
+
+
+
+          cityfrom  TYPE spfli-cityfrom,    "Depart.city
+          countryto TYPE spfli-countryto,    "Country
+          cityto    TYPE spfli-cityto,    "Arrival city
+          fltime    TYPE spfli-fltime,    "Flight time
+        END OF ty_spfli.
+
+*---------------------------Airline_Flight----------------------------
+
+TYPES : BEGIN OF ty_sflight,
+          carrid     TYPE sflight-carrid,  "Demo sflight text enhancement
+          connid     TYPE sflight-connid,  "Flight Connection Number
+          fldate     TYPE sflight-fldate,  "Flight date
+          seatsmax   TYPE sflight-seatsmax, "Maximum capacity in economy class
+          seatsocc   TYPE sflight-seatsocc, "Occupied seats in economy class
+          paymentsum TYPE sflight-paymentsum, "Total  Bookings
+          price      TYPE sflight-price, "Air Price
+          planetype  TYPE sflight-planetype, "Air Price
+        END OF ty_sflight.
+
+*---------------------------Single Flight Booking----------------------------
+
+TYPES : BEGIN OF TY_sbook,
+          carrid   TYPE sbook-carrid,  "Demo sflight text enhancement
+          connid   TYPE sbook-connid,  "Flight Connection Number
+          fldate   TYPE sbook-fldate,   "Flight date
+          bookid   TYPE sbook-bookid,   "Booking number
+          customid TYPE sbook-customid, "Customer Number
+          wunit    TYPE sbook-wunit, "Unit of measure
+          PASSNAME    TYPE sbook-PASSNAME, "Customer Name
+          PASSBIRTH    TYPE sbook-PASSBIRTH, "Customer DOB
+          PASSFORM   TYPE sbook-PASSFORM, "Customer Address
+          CANCELLED   TYPE sbook-CANCELLED, "Cancelation flight
+          AGENCYNUM   TYPE sbook-CANCELLED, "Travel Agency Number
+        END OF ty_sbook.
+
+*-----Declaring Work Areas & Internal tables---------------------------*
+
+DATA : It_SCARR TYPE TABLE OF ty_scarr,
+       wa_SCARR TYPE           ty_scarr.
+
+DATA : it_SPFLI TYPE TABLE OF ty_spfli,
+       wa_SPFLI TYPE          ty_spfli.
+
+DATA : it_sflight TYPE TABLE OF ty_sflight,
+       wa_sflight TYPE          ty_sflight.
+
+DATA : it_sbook TYPE TABLE OF ty_sbook,
+       wa_sbook TYPE          ty_sbook.
+
+DATA : it_fcat TYPE slis_t_fieldcat_alv,
+       wa_fcat TYPE slis_fieldcat_alv.
+
+DATA : it_listheader TYPE slis_t_listheader,
+       wa_listheader TYPE slis_listheader.
+
+
+*--------------------------Customer_Selected_Flight_Details----------------------------
+
+DATA: wa_selected_sflight TYPE sflight.
